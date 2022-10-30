@@ -1,5 +1,5 @@
 import {
-  Center, Flex, Grid, GridItem, Text, Button, Checkbox, Stack, FormControl, FormLabel, Input,
+  Center, Flex, Grid, GridItem, Text, Button, Checkbox, Stack, FormControl, FormLabel, Input, useBreakpointValue, Spinner
 } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
 import { useLottie } from 'lottie-react'
@@ -7,6 +7,10 @@ import api from './services/api';
 import plane from './assets/plane.json'
 
 function App() {
+  const isDesktop = useBreakpointValue({ lg: "none" });
+  const [load, setLoad] = useState(false)
+
+  // FORM
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [telefone, setTelefone] = useState('')
@@ -29,9 +33,15 @@ function App() {
   const [filter, setFilter] = useState(true)
 
   async function GetCity() {
-    const response = await api.get("/city");
-    setCity(response.data)
-    console.log(response.data);
+    try {
+      const response = await api.get("/city");
+      setCity(response.data)
+      console.log(response.data);
+      setLoad(true)
+    } catch (error) {
+      console.log(error);
+    }
+
   }
 
   function cid(e) {
@@ -76,10 +86,6 @@ function App() {
     GetCity();
   }, []);
 
-
-
-
-
   const style = {
     height: 100,
   };
@@ -87,30 +93,123 @@ function App() {
   const options = {
     animationData: plane,
     loop: true,
-
   };
 
   const { View } = useLottie(options, style);
 
-  return (
-    <Flex height="100vh" bg={"#3490dc"} w={"100%"} flexDirection={"column"}  >
-      <Center>
-        <Text fontSize='4xl' color={"#fff"}>
-          Viagem
-        </Text>
-        {View}
-      </Center>
+  if (load == true) {
+    return (
+      <>
+        {isDesktop ?
+          <Flex height="100vh" bg={"#3490dc"} w={"100%"} flexDirection={"column"}  >
+            <Center>
+              <Text fontSize='4xl' color={"#fff"}>
+                Viagem
+              </Text>
+              {View}
+            </Center>
 
-      <Center>
-        <Grid autoColumns h={400} >
-          <GridItem bg={"#fff"} mr={20} colSpan={2} h="100%" w={400} borderRadius={40}>
+            <Center>
+              <Grid autoColumns h={400} >
+                <GridItem bg={"#fff"} mr={20} colSpan={2} h="100%" w={400} borderRadius={40}>
+                  {/* FORM */}
+                  <Center flexDirection={"column"}>
+                    <Text fontSize='4xl' >
+                      Dados Pessoais
+                    </Text>
+                    <Center >
+                      <FormControl w={240}>
+                        <FormLabel>Nome</FormLabel>
+                        <Input isInvalid={isErrorName} type='text' value={name} onChange={handleNameChange} />
+                        <FormLabel fontSize={20}>Email</FormLabel>
+                        <Input isInvalid={isErrorEmail} type='text' value={email} onChange={handleEmailChange} />
+                        <FormLabel fontSize={20}>Telefone</FormLabel>
+                        <Input type='tel' isInvalid={isErrorTelefone} value={telefone} onChange={handleTelefoneChange} />
+                        <FormLabel fontSize={20}>CPF</FormLabel>
+                        <Input type='number' isInvalid={isErrorCpf} value={cpf} onChange={handleCPFChange} />
+                      </FormControl>
+                    </Center>
+                  </Center>
+                </GridItem>
+
+                <GridItem bg={"#fff"} colStart={4} colEnd={6} h='100%' w={400} borderRadius={40} >
+
+                  <Center flexDirection={"column"} mt={5} p={5}>
+                    {/* PAIS */}
+                    <Text fontSize='2xl' >Escolha o Pais</Text>
+                    <Stack overflowY={"scroll"} h={150} w={320} mb={5} >
+                      {country.map((e) => (
+                        <div>
+                          <Checkbox onChange={(e) => Paises(e.target.value)} iconColor='blue' iconSize='1rem' value={e.code}>{e.name_ptbr}</Checkbox>
+                          <br></br>
+                        </div>
+                      ))
+                      }
+                    </Stack >
+                    {/* CIDADE */}
+                    <Center>
+                      <Text fontSize='2xl' >Escolha a Cidade</Text>
+                      <Button colorScheme='teal' size='xs' onClick={() => setFilter(!filter)}>
+                        Filtrar por Pais
+                      </Button>
+                    </Center>
+                    <Stack overflowY={"scroll"} h={150} w={320} >
+                      {filter ?
+                        city.map((e) => (
+                          <div>
+                            <Checkbox onChange={(e) => cid(e.target.value)} iconColor='blue' iconSize='1rem' value={e.name}>{e.name}</Checkbox>
+                            <br></br>
+                          </div>
+                        ))
+                        :
+                        city.map((e) => {
+
+                          if (code.includes(e.country_code) == true) {
+                            return (
+                              <div>
+                                <Checkbox onChange={(e) => cid(e.target.value)} iconColor='blue' iconSize='1rem' value={e.name}>{e.name}</Checkbox>
+                                <br></br>
+                              </div>)
+                          } else {
+                            console.log("não tem");
+                          }
+
+                        })
+                      }
+
+                    </Stack >
+                  </Center>
+
+
+
+                </GridItem>
+
+              </Grid>
+
+            </Center>
+
+
+            <Center mt={10}>
+              <Button colorScheme='cyan' size='lg'> Enviar </Button>
+            </Center>
+
+          </Flex >
+          :
+          <Flex bg={"#3490dc"} w={"100%"} flexDirection={"column"}  >
+            <Center>
+              <Text fontSize='4xl' color={"#fff"}>
+                Viagem
+              </Text>
+              {View}
+            </Center>
+
             {/* FORM */}
             <Center flexDirection={"column"}>
               <Text fontSize='4xl' >
                 Dados Pessoais
               </Text>
               <Center >
-                <FormControl w={240}>
+                <FormControl w={320} borderRadius={20} p={5} bg={"#fff"} >
                   <FormLabel>Nome</FormLabel>
                   <Input isInvalid={isErrorName} type='text' value={name} onChange={handleNameChange} />
                   <FormLabel fontSize={20}>Email</FormLabel>
@@ -122,14 +221,14 @@ function App() {
                 </FormControl>
               </Center>
             </Center>
-          </GridItem>
 
-          <GridItem bg={"#fff"} colStart={4} colEnd={6} h='100%' w={400} borderRadius={40} >
+
+
 
             <Center flexDirection={"column"} mt={5} p={5}>
               {/* PAIS */}
               <Text fontSize='2xl' >Escolha o Pais</Text>
-              <Stack overflowY={"scroll"} h={150} w={320} mb={5} >
+              <Stack bg={"#fff"} overflowY={"scroll"} h={200} w={320} mb={5} borderRadius={20} p={5} >
                 {country.map((e) => (
                   <div>
                     <Checkbox onChange={(e) => Paises(e.target.value)} iconColor='blue' iconSize='1rem' value={e.code}>{e.name_ptbr}</Checkbox>
@@ -145,7 +244,7 @@ function App() {
                   Filtrar por Pais
                 </Button>
               </Center>
-              <Stack overflowY={"scroll"} h={150} w={320} >
+              <Stack bg={"#fff"} overflowY={"scroll"} h={200} w={320} borderRadius={20} p={5} >
                 {filter ?
                   city.map((e) => (
                     <div>
@@ -172,24 +271,22 @@ function App() {
               </Stack >
             </Center>
 
+            <Center mt={10}>
+              <Button colorScheme='cyan' size='lg'> Enviar </Button>
+            </Center>
 
-
-          </GridItem>
-
-        </Grid>
-
+          </Flex >
+        }
+      </>
+    )
+  } else {
+    return (
+      <Center>
+        <Spinner size={"xl"} />
       </Center>
+    )
 
-
-      <Center mt={10}>
-        <Button colorScheme='cyan' size='lg'> Enviar </Button>
-      </Center>
-
-    </Flex >
-
-
-
-  )
+  }
 }
 
 export default App
