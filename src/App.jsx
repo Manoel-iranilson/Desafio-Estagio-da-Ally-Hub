@@ -7,6 +7,20 @@ import api from './services/api';
 import plane from './assets/plane.json'
 
 function App() {
+  const [name, setName] = useState('')
+  const [email, setEmail] = useState('')
+  const [telefone, setTelefone] = useState('')
+  const [cpf, setCpf] = useState('')
+
+  const handleNameChange = (e) => setName(e.target.value)
+  const handleEmailChange = (e) => setEmail(e.target.value)
+  const handleTelefoneChange = (e) => setTelefone(e.target.value)
+  const handleCPFChange = (e) => setCpf(e.target.value)
+
+  const isErrorName = name === ''
+  const isErrorEmail = email === ''
+  const isErrorTelefone = telefone === ''
+  const isErrorCpf = cpf === ''
 
 
   // CIDADE
