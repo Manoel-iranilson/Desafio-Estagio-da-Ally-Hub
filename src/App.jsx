@@ -8,6 +8,64 @@ import plane from './assets/plane.json'
 
 function App() {
 
+
+  // CIDADE
+  const [city, setCity] = useState([])
+  const [cidade, setCidade] = useState([])
+  const [filter, setFilter] = useState(true)
+
+  async function GetCity() {
+    const response = await api.get("/city");
+    setCity(response.data)
+    console.log(response.data);
+  }
+
+  function cid(e) {
+    const newArray = cidade
+    const indexOf = newArray.indexOf(e)
+    console.log(indexOf);
+    if (indexOf > -1) {
+      newArray.splice(indexOf, 1)
+    } else {
+      newArray.push(e)
+    }
+    setCidade(newArray)
+    console.log(cidade);
+
+  }
+
+  // PAIS
+  const [country, setCountry] = useState([])
+  const [code, setCode] = useState([])
+
+  async function GetCountry() {
+    const response = await api.get("/country");
+    setCountry(response.data)
+    console.log(response.data);
+  }
+
+  function Paises(e) {
+    const newArray = code
+    const indexOf = newArray.indexOf(e)
+    console.log(indexOf);
+    if (indexOf > -1) {
+      newArray.splice(indexOf, 1)
+    } else {
+      newArray.push(e)
+    }
+    setCode(newArray)
+    console.log(code);
+  }
+
+  useEffect(() => {
+    GetCountry();
+    GetCity();
+  }, []);
+
+
+
+
+
   const style = {
     height: 100,
   };
@@ -52,6 +110,57 @@ function App() {
             </Center>
           </GridItem>
 
+          <GridItem bg={"#fff"} colStart={4} colEnd={6} h='100%' w={400} borderRadius={40} >
+
+            <Center flexDirection={"column"} mt={5} p={5}>
+              {/* PAIS */}
+              <Text fontSize='2xl' >Escolha o Pais</Text>
+              <Stack overflowY={"scroll"} h={150} w={320} mb={5} >
+                {country.map((e) => (
+                  <div>
+                    <Checkbox onChange={(e) => Paises(e.target.value)} iconColor='blue' iconSize='1rem' value={e.code}>{e.name_ptbr}</Checkbox>
+                    <br></br>
+                  </div>
+                ))
+                }
+              </Stack >
+              {/* CIDADE */}
+              <Center>
+                <Text fontSize='2xl' >Escolha a Cidade</Text>
+                <Button colorScheme='teal' size='xs' onClick={() => setFilter(!filter)}>
+                  Filtrar por Pais
+                </Button>
+              </Center>
+              <Stack overflowY={"scroll"} h={150} w={320} >
+                {filter ?
+                  city.map((e) => (
+                    <div>
+                      <Checkbox onChange={(e) => cid(e.target.value)} iconColor='blue' iconSize='1rem' value={e.name}>{e.name}</Checkbox>
+                      <br></br>
+                    </div>
+                  ))
+                  :
+                  city.map((e) => {
+
+                    if (code.includes(e.country_code) == true) {
+                      return (
+                        <div>
+                          <Checkbox onChange={(e) => cid(e.target.value)} iconColor='blue' iconSize='1rem' value={e.name}>{e.name}</Checkbox>
+                          <br></br>
+                        </div>)
+                    } else {
+                      console.log("não tem");
+                    }
+
+                  })
+                }
+
+              </Stack >
+            </Center>
+
+
+
+          </GridItem>
 
         </Grid>
       </Center>
