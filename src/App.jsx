@@ -8,9 +8,26 @@ import plane from './assets/plane.json'
 
 function App() {
 
+  const style = {
+    height: 100,
+  };
+
+  const options = {
+    animationData: plane,
+    loop: true,
+
+  };
+
+  const { View } = useLottie(options, style);
+
   return (
     <Flex height="100vh" bg={"#3490dc"} w={"100%"} flexDirection={"column"}  >
-
+      <Center>
+        <Text fontSize='4xl' color={"#fff"}>
+          Viagem
+        </Text>
+        {View}
+      </Center>
 
     </Flex >
 
