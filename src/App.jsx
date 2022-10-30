@@ -177,6 +177,12 @@ function App() {
           </GridItem>
 
         </Grid>
+
+      </Center>
+
+
+      <Center mt={10}>
+        <Button colorScheme='cyan' size='lg'> Enviar </Button>
       </Center>
 
     </Flex >
