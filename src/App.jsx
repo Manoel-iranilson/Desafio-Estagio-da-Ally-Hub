@@ -1,29 +1,39 @@
 import {
-  Center, Flex, Grid, GridItem, Text, Button, Checkbox, Stack, FormControl, FormLabel, Input, useBreakpointValue, Spinner
+  Center, Flex, Grid, GridItem, Text, Button, Checkbox, Stack, FormControl, FormLabel, Input, useBreakpointValue, Spinner, useToast
 } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
 import { useLottie } from 'lottie-react'
 import api from './services/api';
 import plane from './assets/plane.json'
+import { initializeApp } from "firebase/app";
+import { collection, getFirestore, addDoc } from "firebase/firestore"
+
+const firebaseConfig = initializeApp({
+  apiKey: "AIzaSyDlub5Yc1ppHInzGYlqSx7h33_IlKOaj40",
+  authDomain: "desafio-viagem.firebaseapp.com",
+  projectId: "desafio-viagem",
+});
 
 function App() {
   const isDesktop = useBreakpointValue({ lg: "none" });
   const [load, setLoad] = useState(false)
+  const userCollection = collection(getFirestore(firebaseConfig), "DadosViagem")
+  const toast = useToast()
 
   // FORM
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
-  const [telefone, setTelefone] = useState('')
+  const [phone, setPhone] = useState('')
   const [cpf, setCpf] = useState('')
 
   const handleNameChange = (e) => setName(e.target.value)
   const handleEmailChange = (e) => setEmail(e.target.value)
-  const handleTelefoneChange = (e) => setTelefone(e.target.value)
+  const handlePhoneChange = (e) => setPhone(e.target.value)
   const handleCPFChange = (e) => setCpf(e.target.value)
 
   const isErrorName = name === ''
   const isErrorEmail = email === ''
-  const isErrorTelefone = telefone === ''
+  const isErrorPhone = phone === ''
   const isErrorCpf = cpf === ''
 
 
@@ -86,6 +96,38 @@ function App() {
     GetCity();
   }, []);
 
+  async function SendDate() {
+    if (name != "" && email != "" && phone != "" && cpf != "" && code != "" && cidade != "") {
+      toast({
+        title: 'Viagem Salva',
+        description: "Seus dados foram salvos com sucesso",
+        status: 'success',
+        duration: 1000,
+        isClosable: true,
+      })
+      const date = await addDoc(userCollection, {
+        name,
+        email,
+        phone,
+        cpf,
+        code,
+        cidade
+      })
+    } else {
+      toast({
+        title: 'Verifique os dados',
+        description: "Todos os dados são obrigatorios",
+        status: 'error',
+        duration: 1000,
+        isClosable: true,
+      })
+    }
+
+
+
+
+  }
+
   const style = {
     height: 100,
   };
@@ -124,7 +166,7 @@ function App() {
                         <FormLabel fontSize={20}>Email</FormLabel>
                         <Input isInvalid={isErrorEmail} type='text' value={email} onChange={handleEmailChange} />
                         <FormLabel fontSize={20}>Telefone</FormLabel>
-                        <Input type='tel' isInvalid={isErrorTelefone} value={telefone} onChange={handleTelefoneChange} />
+                        <Input type='tel' isInvalid={isErrorPhone} value={phone} onChange={handlePhoneChange} />
                         <FormLabel fontSize={20}>CPF</FormLabel>
                         <Input type='number' isInvalid={isErrorCpf} value={cpf} onChange={handleCPFChange} />
                       </FormControl>
@@ -149,21 +191,27 @@ function App() {
                     {/* CIDADE */}
                     <Center>
                       <Text fontSize='2xl' >Escolha a Cidade</Text>
+
                       <Button colorScheme='teal' size='xs' onClick={() => setFilter(!filter)}>
-                        Filtrar por Pais
+                        {filter ?
+                          <text>Filtrar por pais</text>
+                          :
+                          <text> Mostra todos</text>
+                        }
                       </Button>
                     </Center>
                     <Stack overflowY={"scroll"} h={150} w={320} >
                       {filter ?
-                        city.map((e) => (
-                          <div>
-                            <Checkbox onChange={(e) => cid(e.target.value)} iconColor='blue' iconSize='1rem' value={e.name}>{e.name}</Checkbox>
-                            <br></br>
-                          </div>
-                        ))
+                        city.map((e) => {
+                          return (
+                            <div>
+                              <Checkbox onChange={(e) => cid(e.target.value)} iconColor='blue' iconSize='1rem' value={e.name}>{e.name}</Checkbox>
+                              <br></br>
+                            </div>
+                          )
+                        })
                         :
                         city.map((e) => {
-
                           if (code.includes(e.country_code) == true) {
                             return (
                               <div>
@@ -190,7 +238,7 @@ function App() {
 
 
             <Center mt={10}>
-              <Button colorScheme='cyan' size='lg'> Enviar </Button>
+              <Button colorScheme='cyan' size='lg' onClick={() => SendDate()}> Enviar </Button>
             </Center>
 
           </Flex >
