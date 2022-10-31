@@ -123,9 +123,6 @@ function App() {
       })
     }
 
-
-
-
   }
 
   const style = {
@@ -134,7 +131,7 @@ function App() {
 
   const options = {
     animationData: plane,
-    loop: true,
+    load: true
   };
 
   const { View } = useLottie(options, style);
@@ -148,7 +145,7 @@ function App() {
               <Text fontSize='4xl' color={"#fff"}>
                 Viagem
               </Text>
-              {View}
+
             </Center>
 
             <Center>
@@ -330,7 +327,7 @@ function App() {
   } else {
     return (
       <Center>
-        <Spinner size={"xl"} />
+        {View}
       </Center>
     )
 
